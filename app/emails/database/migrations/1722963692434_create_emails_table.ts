@@ -15,6 +15,7 @@ export default class extends BaseSchema {
       table.text('text')
       table.text('html')
       table.enum('folder', ['inbox', 'sent', 'drafts', 'spam', 'trash']).notNullable()
+      table.boolean('read').defaultTo(false)
 
       table.string('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
       table.string('reply_to_id').references('id').inTable('emails').onDelete('SET NULL')

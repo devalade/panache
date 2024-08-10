@@ -31,6 +31,9 @@ export default class Email extends BaseModel {
   @column()
   declare folder: 'inbox' | 'sent' | 'drafts' | 'spam' | 'trash'
 
+  @column()
+  declare read: boolean
+
   /**
    * Relationships.
    */

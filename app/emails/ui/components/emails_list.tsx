@@ -1,13 +1,12 @@
-import { ComponentProps } from 'react'
 import { formatDistanceToNow } from 'date-fns'
-import { Mail } from '../pages'
 import { useEmail } from '../hooks/use_email'
 import { ScrollArea } from '#common/ui/components/scroll_area'
 import { cn } from '#common/ui/lib/cn'
-import { Badge } from '#common/ui/components/badge'
+import React from 'react'
+import Email from '#emails/database/models/email'
 
 interface EmailsListProps {
-  items: Mail[]
+  items: Email[]
 }
 
 export function EmailsList({ items }: EmailsListProps) {
@@ -23,17 +22,12 @@ export function EmailsList({ items }: EmailsListProps) {
               'flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent',
               email.selected === item.id && 'bg-muted'
             )}
-            onClick={() =>
-              setEmail({
-                ...email,
-                selected: item.id,
-              })
-            }
+            onClick={() => setEmail({ ...email, selected: item.id })}
           >
             <div className="flex w-full flex-col gap-1">
               <div className="flex items-center">
                 <div className="flex items-center gap-2">
-                  <div className="font-semibold">{item.name}</div>
+                  <div className="font-semibold">{item.subject}</div>
                   {!item.read && <span className="flex h-2 w-2 rounded-full bg-blue-600" />}
                 </div>
                 <div
@@ -42,40 +36,21 @@ export function EmailsList({ items }: EmailsListProps) {
                     email.selected === item.id ? 'text-foreground' : 'text-muted-foreground'
                   )}
                 >
-                  {formatDistanceToNow(new Date(item.date), {
+                  {formatDistanceToNow(new Date(item.createdAt as unknown as string), {
                     addSuffix: true,
                   })}
                 </div>
               </div>
-              <div className="text-xs font-medium">{item.subject}</div>
+              <div className="text-xs font-medium">
+                {item.subject ? item.subject : 'No subject'}
+              </div>
             </div>
             <div className="line-clamp-2 text-xs text-muted-foreground">
-              {item.text.substring(0, 300)}
+              {item.text ? item.text?.substring(0, 300) : 'No content'}
             </div>
-            {item.labels.length ? (
-              <div className="flex items-center gap-2">
-                {item.labels.map((label) => (
-                  <Badge key={label} variant={getBadgeVariantFromLabel(label)}>
-                    {label}
-                  </Badge>
-                ))}
-              </div>
-            ) : null}
           </button>
         ))}
       </div>
     </ScrollArea>
   )
-}
-
-function getBadgeVariantFromLabel(label: string): ComponentProps<typeof Badge>['variant'] {
-  if (['work'].includes(label.toLowerCase())) {
-    return 'default'
-  }
-
-  if (['personal'].includes(label.toLowerCase())) {
-    return 'outline'
-  }
-
-  return 'secondary'
 }

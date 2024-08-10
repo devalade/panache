@@ -20,9 +20,16 @@ export default class EmailsController {
   /**
    * This method is responsible for rendering the emails list.
    */
-  async index({ auth, inertia }: HttpContext) {
+  async index({ auth, params, inertia }: HttpContext) {
     const counts = await this.getCounts(auth.user!.id)
-    return inertia.render('emails/index', { ...counts })
+
+    const emails = await Email.query()
+      .where('user_id', auth.user!.id)
+      .where('folder', params.folder)
+      .orderBy('created_at', 'desc')
+    console.log('emails', emails)
+
+    return inertia.render('emails/index', { ...counts, emails })
   }
 
   /**
