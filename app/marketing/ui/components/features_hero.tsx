@@ -88,7 +88,7 @@ const FeaturesHero: React.FunctionComponent<FeaturesHeroProps> = () => {
               <h3 className="text-xl font-semibold text-white">Panache Social</h3>
             </div>
             <p className="text-neutral-200 flex-grow">
-              Connect with colleagues and share ideas on our integrated social platform.
+              Connect with friends, family, colleagues, and more
             </p>
           </div>
         </WobbleCard>
