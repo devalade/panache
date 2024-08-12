@@ -37,10 +37,13 @@ export default class DriveFile extends BaseModel {
     declare isFolder: boolean
 
     @column()
-    declare size: number
+    declare size: number | null
 
     @column()
-    declare mime: string;
+    declare mime: string | null;
+
+    @column()
+    declare extname: string | null;
 
     @column()
     declare createdBy: string | null

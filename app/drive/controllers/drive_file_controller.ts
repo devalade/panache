@@ -28,12 +28,12 @@ export default class DriveFileController {
     const name = request.input('name')
     const id = request.param('id')
 
+    // TODO: check if the name already exist
     const file = await DriveFile.find(id)
     if(file) {
       await file.merge({ name, updatedBy: auth.user?.id }).save()
     }
     session.flash('message','File renamed.')
-
 
     return inertia.location('/drive')
   }
@@ -41,7 +41,7 @@ export default class DriveFileController {
   async trash({ request, inertia, session }: HttpContext) {
     const id = request.param('id')
 
-    await File.query().where('id', id).update({ deletedAt: new Date() })
+    await DriveFile.query().where('id', id).update({ deletedAt: new Date() })
 
 
     session.flash('message', 'File deleted.')
@@ -58,11 +58,7 @@ export default class DriveFileController {
       const isFolder = !isLastPart;
       const name = parts[i];
 
-      console.log({ name })
-
       const existingRecord = await DriveFile.query().where('name', name).orWhere('parentId', parentId ?? '').first();
-
-      console.log({ existingRecord });
 
       if (existingRecord) {
         parentId = existingRecord.id;
@@ -71,6 +67,7 @@ export default class DriveFileController {
           name: name,
           mime: isFolder ? 'folder' : file.type,
           size: isFolder ? 0 : file.size,
+          extname: isFolder ? null : file.extname,
           path: parts.slice(0, i + 1).join('/'),
           isFolder: isFolder,
           createdBy: userId,

@@ -4,6 +4,7 @@ import { CogIcon, SearchIcon, TrashIcon, UploadIcon } from 'lucide-react'
 import { FilesystemItem } from '../filesystem_item'
 import usePageProps from '#common/ui/hooks/use_page_props'
 import { DriveFile } from '#drive/types/drive_file'
+import { Link } from '@inertiajs/react'
 
 export function SidebarContent() {
   const { files } = usePageProps<{ files: DriveFile[] }>()
@@ -33,13 +34,15 @@ export function SidebarContent() {
       </div>
       <hr className="-mx-2.5 bg-destructive-foreground" />
       <div className="py-2">
-        <Button size="sm" variant="ghost" className="w-full justify-start gap-x-2">
-          {' '}
-          <span className="p-1 bg-white rounded-full border">
+        <Button asChild size="sm" variant="ghost" className="w-full justify-start gap-x-2">
+          <Link href="/drive/trash">
             {' '}
-            <TrashIcon className="w-4 h-4" />{' '}
-          </span>{' '}
-          TRASH
+            <span className="p-1 bg-white rounded-full border">
+              {' '}
+              <TrashIcon className="w-4 h-4" />{' '}
+            </span>{' '}
+            TRASH
+          </Link>
         </Button>
         <div className="text-gray-500 mt-2.5">
           <span className="inline-block bg-gray-200 rounded-full h-2 w-full">

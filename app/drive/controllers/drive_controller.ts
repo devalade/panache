@@ -23,4 +23,14 @@ export default class DriveController {
     }
     return inertia.render('drive/index', { files })
   }
+
+  async trash({ inertia, auth }: HttpContext) {
+    let files: DriveFile[] = []
+    if(auth.user) {
+        files = await DriveFile.inTrash(auth.user.id)
+                            .orderBy('createdAt', 'asc')
+                            .preload('files')
+    }
+    return inertia.render('drive/index', { files })
+  }
 }

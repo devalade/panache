@@ -17,7 +17,9 @@ const DriveFileController = () => import('#drive/controllers/drive_file_controll
 router.group(() => {
     router.get('/drive', [DriveController, 'index'])
     router.get('/drive/folders/*', [DriveController, 'folders'])
+    router.get('/drive/trash', [DriveController, 'trash'])
     router.post('/drive/upload', [DriveFileController, 'upload'])
+
 
     router.put('/drive/file/:id', [DriveFileController, 'rename'])
     router.delete('/drive/file/:id', [DriveFileController, 'trash'])
