@@ -15,11 +15,13 @@ const DriveFileController = () => import('#drive/controllers/drive_file_controll
 
 
 router.group(() => {
+    // Driver
     router.get('/drive', [DriveController, 'index'])
     router.get('/drive/folder/*', [DriveController, 'folder'])
     router.get('/drive/trash', [DriveController, 'trash'])
     router.post('/drive/upload', [DriveFileController, 'upload'])
-
+    // Driver API
+    router.get('/api/drive/file', [DriveController, 'search'])
 
     router.put('/drive/file/:id', [DriveFileController, 'rename'])
     router.delete('/drive/file/:id', [DriveFileController, 'trash'])

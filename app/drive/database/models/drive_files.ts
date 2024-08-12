@@ -16,6 +16,12 @@ export default class DriveFile extends BaseModel {
         return this.notInTrash(userId).andWhereNull('parentId')
     }
 
+    static search(searchTerm: string, columns: string[], userId: string) {
+        const columnString = columns.join(' || \' \' || ')
+        return this.notInTrash(userId)
+        .whereRaw(`to_tsvector('english', ${columnString}) @@ to_tsquery('english', ?)`, [`${searchTerm}:*`])
+    }
+
     @column()
     declare name: string
 

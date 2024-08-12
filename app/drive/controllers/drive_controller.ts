@@ -12,6 +12,15 @@ export default class DriveController {
     return inertia.render('drive/index', { files })
   }
 
+  async search({ response, request, auth }: HttpContext) {
+    const { searchTerm } = request.qs()
+    let files: DriveFile[] = []
+    if(auth.user) {
+        files = await DriveFile.search(searchTerm, ['name'], auth.user.id)
+    }
+    return response.json({ data: files })
+  }
+
   async folder({ params, inertia, auth }: HttpContext) {
     let files: DriveFile[] = []
     if(params['*'].length > 0 && auth.user) {
