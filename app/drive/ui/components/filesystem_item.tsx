@@ -1,44 +1,33 @@
-import { ChevronRightIcon, FileIcon, FolderIcon } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react'
+import { ChevronRightIcon } from 'lucide-react'
+import { DriveFile } from '#drive/types/drive_file'
+import { MimeFileIcon } from '#drive/ui/components/mime_file_icon'
+import { useToggle } from '#common/ui/hooks/use_toggle'
 
-type Node = {
-  name: string;
-  nodes?: Node[];
-};
-
-export function FilesystemItem({ node }: { node: Node }) {
-  let [isOpen, setIsOpen] = useState(false);
+export function FilesystemItem({ file }: { file: DriveFile }) {
+  const { value: isOpen, toggle } = useToggle()
 
   return (
-    <li key={node.name}>
+    <li key={file.id}>
       <span className="flex items-center gap-1.5 py-1 line-clamp-1">
-        {node.nodes && node.nodes.length > 0 && (
-          <button onClick={() => setIsOpen(!isOpen)} className="p-1 -m-1">
-            <ChevronRightIcon
-              className={`size-4 text-gray-500 ${isOpen ? 'rotate-90' : ''}`}
-            />
+        {file.isFolder && (
+          <button onClick={() => toggle()} className="p-1 -m-1">
+            <ChevronRightIcon className={`size-4 text-gray-500 ${isOpen ? 'rotate-90' : ''}`} />
           </button>
         )}
 
-        {node.nodes ? (
-          <FolderIcon
-            className={`size-5 text-gray-600 shrink-0 ${
-              node.nodes.length === 0 ? 'ml-[22px]' : ''
-            }`}
-          />
-        ) : (
-          <FileIcon className="ml-[22px] size-5 text-gray-900 shrink-0" />
-        )}
-        {node.name}
+        <MimeFileIcon
+          mimeType={file.mime}
+          className={`size-5 text-gray-600 shrink-0 ${file.isFolder ? '' : 'ml-5'} `}
+        />
+        <span className="truncate overflow-hidden">{file.name}</span>
       </span>
 
       {isOpen && (
         <ul className="pl-6">
-          {node.nodes?.map((node) => (
-            <FilesystemItem node={node} key={node.name} />
-          ))}
+          {file.files?.map((file) => <FilesystemItem file={file} key={file.id} />)}
         </ul>
       )}
     </li>
-  );
+  )
 }
