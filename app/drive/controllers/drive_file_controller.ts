@@ -1,12 +1,12 @@
 import S3Service from '#drive/services/s3_service'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
-import File from '#drive/database/models/files'
+import DriveFile from '#drive/database/models/drive_files'
 import logger from '@adonisjs/core/services/logger'
 import { MultipartFile } from '@adonisjs/core/bodyparser'
 
 
-export default class FileController {
+export default class DriveFileController {
   @inject()
   async upload({ request, response, auth }: HttpContext, s3Service: S3Service) {
     const file = request.file('file')
@@ -28,7 +28,7 @@ export default class FileController {
     const name = request.input('name')
     const id = request.param('id')
 
-    const file = await File.find(id)
+    const file = await DriveFile.find(id)
     if(file) {
       await file.merge({ name, updatedBy: auth.user?.id }).save()
     }
@@ -60,14 +60,14 @@ export default class FileController {
 
       console.log({ name })
 
-      const existingRecord = await File.query().where('name', name).orWhere('parentId', parentId ?? '').first();
+      const existingRecord = await DriveFile.query().where('name', name).orWhere('parentId', parentId ?? '').first();
 
       console.log({ existingRecord });
 
       if (existingRecord) {
         parentId = existingRecord.id;
       } else {
-        const newRecord = await File.create({
+        const newRecord: DriveFile = await DriveFile.create({
           name: name,
           mime: isFolder ? 'folder' : file.type,
           size: isFolder ? 0 : file.size,

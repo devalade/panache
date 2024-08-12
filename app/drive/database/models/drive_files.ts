@@ -3,7 +3,7 @@ import BaseModel from '#common/database/models/base_model'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
 
-export default class File extends BaseModel {
+export default class DriveFile extends BaseModel {
 
     static notInTrash(userId: string){
         return this.query().whereNull('deletedAt').andWhere('createdBy', userId)
@@ -25,13 +25,13 @@ export default class File extends BaseModel {
     @column()
     declare parentId: string | null
 
-    @belongsTo(() => File)
-    declare parent: BelongsTo<typeof File> | null
+    @belongsTo(() => DriveFile)
+    declare parent: BelongsTo<typeof DriveFile> | null
 
-    @hasMany(() => File, {
+    @hasMany(() => DriveFile, {
         foreignKey: 'parentId'
     })
-    declare files: HasMany<typeof File>
+    declare files: HasMany<typeof DriveFile>
 
     @column()
     declare isFolder: boolean

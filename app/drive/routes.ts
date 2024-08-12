@@ -11,16 +11,14 @@ import { middleware } from '#start/kernel'
 import router from '@adonisjs/core/services/router'
 
 const DriveController = () => import('#drive/controllers/drive_controller')
-const FileController = () => import('#drive/controllers/file_controller')
+const DriveFileController = () => import('#drive/controllers/drive_file_controller')
 
 
 router.group(() => {
     router.get('/drive', [DriveController, 'index'])
     router.get('/drive/folders/*', [DriveController, 'folders'])
-    router.post('/drive/upload', [FileController, 'upload'])
+    router.post('/drive/upload', [DriveFileController, 'upload'])
 
-    router.put('/drive/file/:id', [FileController, 'rename'])
-    router.delete('/drive/file/:id', [FileController, 'trash'])
-
-
+    router.put('/drive/file/:id', [DriveFileController, 'rename'])
+    router.delete('/drive/file/:id', [DriveFileController, 'trash'])
 }).use(middleware.auth())
