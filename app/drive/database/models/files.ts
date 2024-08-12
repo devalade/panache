@@ -1,37 +1,54 @@
-import { belongsTo, column } from '@adonisjs/lucid/orm'
+import { belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
 import BaseModel from '#common/database/models/base_model'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
 
 export default class File extends BaseModel {
-  @column()
-  declare name: string
 
-  @column()
-  declare path: string | null
+    static notInTrash(userId: string){
+        return this.query().whereNull('deletedAt').andWhere('createdBy', userId)
+    }
+    static inTrash(userId: string){
+        return this.query().whereNotNull('deletedAt').andWhere('createdBy', userId)
+    }
 
-  @column()
-  declare parentId: string | null
+    static home(userId: string){
+        return this.notInTrash(userId).andWhereNull('parentId')
+    }
 
-  @belongsTo(() => File)
-  declare parent: BelongsTo<typeof File> | null
+    @column()
+    declare name: string
 
-  @column()
-  declare isFolder: boolean
+    @column()
+    declare path: string | null
 
-  @column()
-  declare size: number
+    @column()
+    declare parentId: string | null
 
-  @column()
-  declare mime: string;
+    @belongsTo(() => File)
+    declare parent: BelongsTo<typeof File> | null
 
-  @column()
-  declare createdBy: string | null
+    @hasMany(() => File, {
+        foreignKey: 'parentId'
+    })
+    declare files: HasMany<typeof File>
 
-  @column()
-  declare updatedBy: string | null
+    @column()
+    declare isFolder: boolean
 
-  @column()
-  declare deletedAt: DateTime | null
+    @column()
+    declare size: number
+
+    @column()
+    declare mime: string;
+
+    @column()
+    declare createdBy: string | null
+
+    @column()
+    declare updatedBy: string | null
+
+    @column()
+    declare deletedAt: DateTime | null
 
 }

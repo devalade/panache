@@ -11,14 +11,11 @@ export default class FileController {
   async upload({ request, response, auth }: HttpContext, s3Service: S3Service) {
     const file = request.file('file')
     try {
-
-      
-      
       if(auth.user && file) {
         await this.createTree(file, auth.user?.id)
         await s3Service.uploadFile(auth.user?.id, file, file.clientName)
       }
-      
+
       return response.created({
         message: "File uploaded successfully."
       })
@@ -53,20 +50,20 @@ export default class FileController {
   }
 
   private async createTree(file: MultipartFile, userId: string) {
-    const parts = file.clientName.split('/'); 
+    const parts = file.clientName.split('/');
     let parentId = null;
-  
+
     for (let i = 0; i < parts.length; i++) {
       const isLastPart = i === parts.length - 1;
       const isFolder = !isLastPart;
       const name = parts[i];
 
       console.log({ name })
-  
+
       const existingRecord = await File.query().where('name', name).orWhere('parentId', parentId ?? '').first();
 
       console.log({ existingRecord });
-  
+
       if (existingRecord) {
         parentId = existingRecord.id;
       } else {
@@ -79,7 +76,7 @@ export default class FileController {
           createdBy: userId,
           parentId: parentId,
         });
-  
+
         parentId = newRecord.id;
       }
     }

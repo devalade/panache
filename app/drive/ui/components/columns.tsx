@@ -1,14 +1,15 @@
 import * as React from 'react'
 import { ColumnDef } from '@tanstack/react-table'
-import { File } from '#drive/types/file'
+import { DriveFile } from '#drive/types/drive_file'
 import { ArrowDownIcon, FilePlusIcon, FolderPlusIcon, UploadIcon } from 'lucide-react'
 import { Button } from '#common/ui/components/button'
 import { Checkbox } from '#common/ui/components/checkbox'
 import { formatBytes } from '#common/ui/lib/format_bytes'
 import { Badge } from '#common/ui/components/badge'
 import { MimeFileIcon } from './mime_file_icon'
+import { Link } from '@inertiajs/react'
 
-export const columns: ColumnDef<File>[] = [
+export const columns: ColumnDef<DriveFile>[] = [
   {
     accessorKey: 'id',
     header: ({ table }) => (
@@ -55,12 +56,14 @@ export const columns: ColumnDef<File>[] = [
     },
     cell: (data) => {
       return (
-        <div className="flex items-center gap-x-4">
-          <span className="p-2.5 rounded-md bg-gray-100 text-gray-500">
-            <MimeFileIcon mimeType={data.row.original.mime} />
-          </span>
-          <span>{data.getValue<string>()}</span>
-        </div>
+        <Link href={`/drive/folders/${data.row.original.id}`} className="inline-block">
+          <div className="flex items-center gap-x-4">
+            <span className="p-2.5 rounded-md bg-gray-100 text-gray-500">
+              <MimeFileIcon mimeType={data.row.original.mime} />
+            </span>
+            <span>{data.getValue<string>()}</span>
+          </div>
+        </Link>
       )
     },
   },
