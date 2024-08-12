@@ -35,7 +35,7 @@ export default class S3Service {
 
   async uploadFile(bucketName: string, file: MultipartFile, key: string): Promise<void> {
     const fileStream = fs.createReadStream(file.tmpPath!)
-    
+
     const uploadParams = {
       Bucket: bucketName,
       Key: key,

@@ -56,7 +56,7 @@ export const columns: ColumnDef<DriveFile>[] = [
     },
     cell: (data) => {
       return (
-        <Link href={`/drive/folders/${data.row.original.id}`} className="inline-block">
+        <Link href={`/drive/folder/${data.row.original.id}`} className="inline-block">
           <div className="flex items-center gap-x-4">
             <span className="p-2.5 rounded-md bg-gray-100 text-gray-500">
               <MimeFileIcon mimeType={data.row.original.mime} />

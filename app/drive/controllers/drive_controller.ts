@@ -12,7 +12,7 @@ export default class DriveController {
     return inertia.render('drive/index', { files })
   }
 
-  async folders({ params, inertia, auth }: HttpContext) {
+  async folder({ params, inertia, auth }: HttpContext) {
     let files: DriveFile[] = []
     if(params['*'].length > 0 && auth.user) {
         const [folderId] = params['*'];
