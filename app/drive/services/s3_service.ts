@@ -49,9 +49,4 @@ export default class S3Service {
       throw new Error(`Error uploading file: ${error.message}`)
     }
   }
-
-  // TODO: implement folder uploadWhat
-   async uploadFolder(): Promise<void> {
- 
-  }
 }

@@ -8,6 +8,7 @@ import {
   FileCodeIcon,
   FileArchiveIcon,
   FileSpreadsheetIcon,
+  FolderIcon,
 } from 'lucide-react';
 
 interface IconProps {
@@ -19,6 +20,8 @@ function getFileIcon(mimeType: string): React.FC<IconProps> {
     const mimeFullType = mimeType.toLowerCase();
   
     switch (true) {
+      case mimeFullType === 'folder':
+        return FolderIcon;
       case mimeFullType === 'text/plain':
         return FileTextIcon;
       case mimeFullType === 'text/html':

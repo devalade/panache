@@ -12,43 +12,41 @@ interface Props {
   files: File[]
 }
 
-
 const Drive: React.FunctionComponent<Props> = ({ files }) => {
-  const [activeView, setActiveView] = React.useState<React.ComponentProps<typeof TopBarContent>['activeView']>('row-view')
+  const [activeView, setActiveView] =
+    React.useState<React.ComponentProps<typeof TopBarContent>['activeView']>('row-view')
   const message = useMessage<string>()
 
-  React.useEffect(()=> {
-    
-    if(message !== undefined) {
+  React.useEffect(() => {
+    if (message !== undefined) {
       toast.success(message)
     }
   }, [message])
 
-
   function onListViewSelect() {
-      setActiveView('row-view')
+    setActiveView('row-view')
   }
 
   function onGridViewSelect() {
-      setActiveView('grid-view')
+    setActiveView('grid-view')
   }
- 
+
   return (
     <DashboardLayout
       className="!p-0"
       moduleName="Drive"
-      topChildren={<TopBarContent activeView={activeView} onGridViewSelect={onGridViewSelect} onListViewSelect={onListViewSelect}  />}
+      topChildren={
+        <TopBarContent
+          activeView={activeView}
+          onGridViewSelect={onGridViewSelect}
+          onListViewSelect={onListViewSelect}
+        />
+      }
       leftChildren={<SidebarContent />}
     >
-      <DataTable<File, any>
-        columns={columns}
-        data={files}
-      />
+      <DataTable<File, any> columns={columns} data={files} />
     </DashboardLayout>
   )
 }
 
 export default Drive
-
-
-

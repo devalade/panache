@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { ColumnDef } from "@tanstack/react-table";
-import { File } from '#drive/types/file';
-import { ArrowDownIcon, FilePlusIcon, FolderIcon, FolderPlusIcon, UploadIcon } from 'lucide-react';
-import { Button } from '#common/ui/components/button';
-import { Checkbox } from '#common/ui/components/checkbox';
-import { formatBytes } from '#common/ui/lib/format_bytes';
-import { Badge } from '#common/ui/components/badge';
-import { MimeFileIcon } from './mime_file_icon';
+import * as React from 'react'
+import { ColumnDef } from '@tanstack/react-table'
+import { File } from '#drive/types/file'
+import { ArrowDownIcon, FilePlusIcon, FolderPlusIcon, UploadIcon } from 'lucide-react'
+import { Button } from '#common/ui/components/button'
+import { Checkbox } from '#common/ui/components/checkbox'
+import { formatBytes } from '#common/ui/lib/format_bytes'
+import { Badge } from '#common/ui/components/badge'
+import { MimeFileIcon } from './mime_file_icon'
 
 export const columns: ColumnDef<File>[] = [
   {
@@ -14,8 +14,7 @@ export const columns: ColumnDef<File>[] = [
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -32,52 +31,66 @@ export const columns: ColumnDef<File>[] = [
   {
     accessorKey: 'name',
     header: () => {
-      return <div className='flex items-center gap-x-4'>
-        <button className='flex items-center gap-x-2'>
-          <span>Name</span>
-          <ArrowDownIcon className='size-4' />
-        </button>
-        <span className='inline-block w-px h-6 bg-gray-200' />
-        <Button size='compact' variant='ghost'> <FolderPlusIcon className='size-4' /> </Button>
-        <Button size='compact' variant='ghost'> <UploadIcon className='size-4' /> </Button>
-        <Button size='compact' variant='ghost'> <FilePlusIcon className='size-4' /> </Button>
-      </div>
+      return (
+        <div className="flex items-center gap-x-4">
+          <button className="flex items-center gap-x-2">
+            <span>Name</span>
+            <ArrowDownIcon className="size-4" />
+          </button>
+          <span className="inline-block w-px h-6 bg-gray-200" />
+          <Button size="compact" variant="ghost">
+            {' '}
+            <FolderPlusIcon className="size-4" />{' '}
+          </Button>
+          <Button size="compact" variant="ghost">
+            {' '}
+            <UploadIcon className="size-4" />{' '}
+          </Button>
+          <Button size="compact" variant="ghost">
+            {' '}
+            <FilePlusIcon className="size-4" />{' '}
+          </Button>
+        </div>
+      )
     },
     cell: (data) => {
-      return <div className='flex items-center gap-x-4'>
-            <span className='p-2.5 rounded-md bg-gray-100 text-gray-500'>
-              <MimeFileIcon mimeType={data.row.original.mime} />
-            </span>
-            <span>
-              {data.getValue<string>()}
-            </span>
-      </div>
-    }
+      return (
+        <div className="flex items-center gap-x-4">
+          <span className="p-2.5 rounded-md bg-gray-100 text-gray-500">
+            <MimeFileIcon mimeType={data.row.original.mime} />
+          </span>
+          <span>{data.getValue<string>()}</span>
+        </div>
+      )
+    },
   },
   {
     accessorKey: 'mime',
     header: 'Type',
     cell: ({ getValue }) => (
-      <Badge variant='secondary' className='uppercase text-gray-500' >{getValue<string>()} </Badge>
-    )
-    
+      <Badge variant="secondary" className="uppercase text-gray-500">
+        {getValue<string>()}{' '}
+      </Badge>
+    ),
   },
   {
     accessorKey: 'size',
     header: 'Size',
     cell: ({ getValue }) => (
-      <span>{formatBytes(getValue<number>())}</span>
-    )
+      <span>{getValue<number>() === 0 ? '' : formatBytes(getValue<number>())}</span>
+    ),
   },
   {
     accessorKey: 'createdAt',
     header: 'Uploaded',
     cell: ({ getValue }) => (
-      <span>{new Intl.DateTimeFormat('en-US', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      }).format(new Date(getValue<string>())) }</span>
-    )
-  }
+      <span>
+        {new Intl.DateTimeFormat('en-US', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        }).format(new Date(getValue<string>()))}
+      </span>
+    ),
+  },
 ]

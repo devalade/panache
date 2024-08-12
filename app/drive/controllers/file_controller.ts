@@ -3,27 +3,20 @@ import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import File from '#drive/database/models/files'
 import logger from '@adonisjs/core/services/logger'
+import { MultipartFile } from '@adonisjs/core/bodyparser'
 
 
 export default class FileController {
   @inject()
   async upload({ request, response, auth }: HttpContext, s3Service: S3Service) {
     const file = request.file('file')
-    
     try {
-      const path = `/${new Date().toISOString()}-${file?.clientName}`;
 
-      await File.create({
-        name: file?.clientName,
-        mime: file?.type,
-        size: file?.size,
-        path: path,
-        isFolder: false,
-        createdBy: auth.user?.id,
-      })
+      
       
       if(auth.user && file) {
-        await s3Service.uploadFile(auth.user?.id, file, path)
+        await this.createTree(file, auth.user?.id)
+        await s3Service.uploadFile(auth.user?.id, file, file.clientName)
       }
       
       return response.created({
@@ -34,19 +27,19 @@ export default class FileController {
     }
   }
 
-   async rename({ request, auth, inertia, session }: HttpContext) {
-      const name = request.input('name')
-      const id = request.param('id')
+  async rename({ request, auth, inertia, session }: HttpContext) {
+    const name = request.input('name')
+    const id = request.param('id')
 
-      const file = await File.find(id)
-      if(file) {
-        await file.merge({ name, updatedBy: auth.user?.id }).save()
-      }
-      session.flash('message','File renamed.')
+    const file = await File.find(id)
+    if(file) {
+      await file.merge({ name, updatedBy: auth.user?.id }).save()
+    }
+    session.flash('message','File renamed.')
 
 
-      return inertia.location('/drive')
-   }
+    return inertia.location('/drive')
+  }
 
   async trash({ request, inertia, session }: HttpContext) {
     const id = request.param('id')
@@ -58,4 +51,38 @@ export default class FileController {
 
     return inertia.location('/drive')
   }
+
+  private async createTree(file: MultipartFile, userId: string) {
+    const parts = file.clientName.split('/'); 
+    let parentId = null;
+  
+    for (let i = 0; i < parts.length; i++) {
+      const isLastPart = i === parts.length - 1;
+      const isFolder = !isLastPart;
+      const name = parts[i];
+
+      console.log({ name })
+  
+      const existingRecord = await File.query().where('name', name).orWhere('parentId', parentId ?? '').first();
+
+      console.log({ existingRecord });
+  
+      if (existingRecord) {
+        parentId = existingRecord.id;
+      } else {
+        const newRecord = await File.create({
+          name: name,
+          mime: isFolder ? 'folder' : file.type,
+          size: isFolder ? 0 : file.size,
+          path: parts.slice(0, i + 1).join('/'),
+          isFolder: isFolder,
+          createdBy: userId,
+          parentId: parentId,
+        });
+  
+        parentId = newRecord.id;
+      }
+    }
+  }
+
 }

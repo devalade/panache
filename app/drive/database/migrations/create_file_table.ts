@@ -9,15 +9,12 @@ export default class extends BaseSchema {
       table.string('name', 1024)
       table.string('path', 1024).nullable()
       
-      // For nestedSet, AdonisJS doesn't have a built-in method.
-      // You'll need to add the necessary columns manually:
-      table.string('parent_id').references('id').inTable('users').nullable()
+      table.string('parent_id').references('id').inTable('files').nullable()
       
       table.boolean('is_folder')
       table.string('mime').nullable()
       table.integer('size').nullable()
       
-      // Assuming you have a 'users' table
       table.string('created_by').references('id').inTable('users')
       table.string('updated_by').references('id').inTable('users').nullable()
       
