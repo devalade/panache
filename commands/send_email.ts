@@ -3,8 +3,8 @@ import type { CommandOptions } from '@adonisjs/core/types/ace'
 import { createTransport } from 'nodemailer'
 import env from '#start/env'
 
-export default class TestEmail extends BaseCommand {
-  static commandName = 'test:email'
+export default class SendEmail extends BaseCommand {
+  static commandName = 'send_email'
   static description = ''
 
   static options: CommandOptions = {}
@@ -12,12 +12,15 @@ export default class TestEmail extends BaseCommand {
   private readonly transporter = createTransport({
     host: env.get('SMTP_HOST'),
     port: Number.parseInt(env.get('SMTP_PORT')),
-    secure: false,
+    secure: true,
     ignoreTLS: true,
     authMethod: 'PLAIN',
     auth: {
       user: 'paul.valery@panache.so',
       pass: 'password123',
+    },
+    tls: {
+      rejectUnauthorized: false,
     },
   })
 

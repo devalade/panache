@@ -7,11 +7,12 @@
   "scripts": {
     "start": "node bin/server.js",
     "build": "node ace build",
-    "dev": "node ace serve --hmr",
+    "dev": "docker compose up -d && node ace migration:fresh && node ace db:seed && node ace serve --hmr",
     "test": "node ace test",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "fresh": "node ace migration:fresh && node ace db:seed"
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
@@ -19,6 +20,9 @@
     "#auth/*": "./app/auth/*.js",
     "#marketing/*": "./app/marketing/*.js",
     "#drive/*": "./app/drive/*.js",
+    "#business/*": "./app/business/*.js",
+    "#social/*": "./app/social/*.js",
+    "#teams/*": "./app/teams/*.js",
     "#emails/*": "./app/emails/*.js",
     "#services/*": "./app/services/*.js",
     "#listeners/*": "./app/listeners/*.js",
@@ -96,9 +100,11 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
+    "date-fns": "^3.6.0",
     "edge.js": "^6.0.2",
     "embla-carousel-react": "^8.1.8",
     "framer-motion": "^11.3.21",
+    "jotai": "^2.9.1",
     "lucide-react": "^0.417.0",
     "luxon": "^3.4.4",
     "mailparser": "^3.7.1",
