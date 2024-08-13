@@ -33,7 +33,7 @@ function useFetch<T>(url: string, config: FetchConfig = { enabled: true } ): Fet
     if(config.enabled) {
         fetchData();
     }
-  }, [url]);
+  }, [url, config.enabled]);
 
   return { data, loading, error };
 }

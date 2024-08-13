@@ -18,8 +18,10 @@ export default class DriveFile extends BaseModel {
 
     static search(searchTerm: string, columns: string[], userId: string) {
         const columnString = columns.join(' || \' \' || ')
+
         return this.notInTrash(userId)
-        .whereRaw(`to_tsvector('english', ${columnString}) @@ to_tsquery('english', ?)`, [`${searchTerm}:*`])
+        .whereLike('name',`%${searchTerm}%`)
+
     }
 
     @column()

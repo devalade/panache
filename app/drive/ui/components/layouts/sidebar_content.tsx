@@ -69,6 +69,7 @@ export function SidebarContent() {
 import { Calculator, Calendar, CreditCard, Settings, Smile, User } from 'lucide-react'
 
 import {
+  Command,
   CommandDialog,
   CommandEmpty,
   CommandGroup,
@@ -81,13 +82,20 @@ import {
 import { useToggle } from '#common/ui/hooks/use_toggle'
 import useFetch from '#common/ui/hooks/use_fetch'
 import { useDebounce } from '#common/ui/hooks/use_debounce'
+import { MimeFileIcon } from '../mime_file_icon'
+import { CommandLoading } from 'cmdk'
 
 export function SearchDialog({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
   const [search, setSearch] = React.useState('')
   const debounceValue = useDebounce(search)
-  const { data, error, loading } = useFetch('/api/drive/files?search=' + encodeURI(debounceValue))
+  const { data, error, loading } = useFetch<{ data: DriveFile[] }>(
+    `/api/drive/file?search=${encodeURIComponent(debounceValue.trim())}`,
+    {
+      enabled: isOpen,
+    }
+  )
 
-  console.log('data', data)
+  console.log({ data })
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -102,46 +110,30 @@ export function SearchDialog({ isOpen, onToggle }: { isOpen: boolean; onToggle: 
   }, [])
 
   return (
-    <CommandDialog open={isOpen} onOpenChange={onToggle}>
+    <CommandDialog open={isOpen} onOpenChange={onToggle} shouldFilder={false}>
       <CommandInput
-        value={debounceValue}
+        value={search}
         onValueChange={setSearch}
         placeholder="Search a file or folder name..."
       />
       <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup heading="Suggestions">
-          <CommandItem>
-            <Calendar className="mr-2 h-4 w-4" />
-            <span>Calendar</span>
+        {debounceValue !== '' && data !== null && data.data.length === 0 && (
+          <CommandEmpty>No results found.</CommandEmpty>
+        )}
+        {loading && <CommandLoading>Loading…</CommandLoading>}
+        {error && <small className="text-red-700">Error: {error.message}</small>}
+
+        {data?.data.map((file) => (
+          <CommandItem key={file.id} asChild>
+            <Link
+              href={file.isFolder ? `/drive/folder/${file.id}` : '#'}
+              className="flex items-center"
+            >
+              <MimeFileIcon mimeType={file.mime} className="mr-2 h-4 w-4" />
+              <span>{file.name}</span>
+            </Link>
           </CommandItem>
-          <CommandItem>
-            <Smile className="mr-2 h-4 w-4" />
-            <span>Search Emoji</span>
-          </CommandItem>
-          <CommandItem>
-            <Calculator className="mr-2 h-4 w-4" />
-            <span>Calculator</span>
-          </CommandItem>
-        </CommandGroup>
-        <CommandSeparator />
-        <CommandGroup heading="Settings">
-          <CommandItem>
-            <User className="mr-2 h-4 w-4" />
-            <span>Profile</span>
-            <CommandShortcut>⌘P</CommandShortcut>
-          </CommandItem>
-          <CommandItem>
-            <CreditCard className="mr-2 h-4 w-4" />
-            <span>Billing</span>
-            <CommandShortcut>⌘B</CommandShortcut>
-          </CommandItem>
-          <CommandItem>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
-            <CommandShortcut>⌘S</CommandShortcut>
-          </CommandItem>
-        </CommandGroup>
+        ))}
       </CommandList>
     </CommandDialog>
   )
