@@ -23,10 +23,10 @@ export default class DriveController {
     return response.json({ data: files })
   }
 
-  async folder({ params, inertia, auth }: HttpContext) {
+  async folder({ request, inertia, auth }: HttpContext) {
     let files: DriveFile[] = []
-    if(params['*'].length > 0 && auth.user) {
-        const [folderId] = params['*'];
+    if(auth.user) {
+        const folderId = request.param('id');
         files = await DriveFile.notInTrash(auth.user.id)
                             .where('parentId', folderId)
                             .limit(10)

@@ -17,8 +17,6 @@ export default class DriveFile extends BaseModel {
     }
 
     static search(searchTerm: string, columns: string[], userId: string) {
-        const columnString = columns.join(' || \' \' || ')
-
         return this.notInTrash(userId)
         .whereLike('name',`%${searchTerm}%`)
 
