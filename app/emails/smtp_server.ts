@@ -11,13 +11,19 @@ import logger from '@adonisjs/core/services/logger'
 import { simpleParser } from 'mailparser'
 import OutgoingEmail from '#emails/events/outgoing_email'
 import IncomingEmail from '#emails/events/incoming_email'
+import env from '#start/env'
 
 export default class SMTPServer extends RawSMTPServer {
   constructor() {
     super({
+      name: 'mail.panache.so',
       authMethods: ['PLAIN'],
       authOptional: true,
       allowInsecureAuth: true,
+      secure: env.get('SMTP_PORT') === '465',
+      logger: true,
+      key: env.get('SMTP_KEY'),
+      cert: env.get('SMTP_CERT'),
     })
   }
 
