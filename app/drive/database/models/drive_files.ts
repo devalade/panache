@@ -17,9 +17,12 @@ export default class DriveFile extends BaseModel {
     }
 
     static search(searchTerm: string, columns: string[], userId: string) {
-        return this.notInTrash(userId)
-        .whereLike('name',`%${searchTerm}%`)
+        const columnString = columns.join(' || \' \' || ');
 
+        return this.query()
+            .whereRaw(`search @@ websearch_to_tsquery('simple', ?)`, [searchTerm.trim().toLowerCase()])
+            .andWhere('createdBy', userId)  // Assuming you want to filter by userId
+            .limit(5);
     }
 
     @column()
