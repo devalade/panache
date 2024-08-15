@@ -34,26 +34,32 @@ interface Props {
 function generateFileStructutre(files: File[]) {
   const folderNames = new Map<
     string,
-    { name: string; mime: string; size: number; isFolder: boolean }
+    { name: string; mime: string; size: number; isFolder: boolean; file: File | File[] }
   >()
 
   files.forEach((f) => {
     const rootFolder =
       f.webkitRelativePath.split('/').length > 1 ? f.webkitRelativePath.split('/')[0] : '/'
-    const data: { name: string; mime: string; size: number; isFolder: boolean } = {
+    const data: { name: string; mime: string; size: number; isFolder: boolean; file: File } = {
       name: rootFolder !== '/' ? rootFolder : f.name,
       mime: rootFolder !== '/' ? 'folder' : String(f.type),
       size: f.size,
       isFolder: rootFolder !== '/',
+      file: f,
     }
-    if (rootFolder !== '/' && folderNames.has(rootFolder)) {
-      const currentFolder = folderNames.get(rootFolder)
+    if (rootFolder !== '/') {
+      console.log({ rootFolder })
+      const currentFolder = folderNames.has(rootFolder) ? folderNames.get(rootFolder) : data
       folderNames.set(rootFolder, {
         ...currentFolder,
+        file: Array.isArray(currentFolder?.file)
+          ? currentFolder?.file.concat(data.file)
+          : [data.file],
         size: currentFolder!.size + data.size,
       } as any)
+    } else {
+      folderNames.set(f.name, data)
     }
-    folderNames.set(rootFolder, data)
   })
 
   return Array.from(folderNames, ([_, value]) => value)
@@ -133,7 +139,7 @@ export function Uploader() {
     const _fileStructure = generateFileStructutre(_files)
     setFileStructure((prev) => [...fileStructure, ..._fileStructure])
 
-    const uploadPromises = _files.map((file, i) => uploadFile(file, i))
+    const uploadPromises = _fileStructure.map((f, i) => uploadFile(f.file, f.name))
 
     Promise.all(uploadPromises)
       .then(() => {
@@ -226,7 +232,11 @@ export function Uploader() {
               {fileStructure?.map((file, index) => (
                 <li key={file.name} className="relative flex items-center p-2.5 rounded-md">
                   <div
-                    style={{ '--progression': `${uploadProgress[index]}%` } as any}
+                    style={
+                      {
+                        '--progression': `${uploadProgress[file.name]}%`,
+                      } as any
+                    }
                     className="absolute inset-0 w-[--progression] bg-green-800/25 rounded-md"
                   ></div>
                   <span className="p-2">

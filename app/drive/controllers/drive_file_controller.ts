@@ -7,76 +7,116 @@ import { MultipartFile } from '@adonisjs/core/bodyparser'
 
 
 export default class DriveFileController {
-  @inject()
-  async upload({ request, response, auth }: HttpContext, s3Service: S3Service) {
-    const file = request.file('file')
-    try {
-      if(auth.user && file) {
-        await this.createTree(file, auth.user?.id)
-        await s3Service.uploadFile(auth.user?.id, file, file.clientName)
-      }
+    @inject()
+    async upload({ request, response, auth }: HttpContext, s3Service: S3Service) {
+        const files = request.files('file')
+        if (!files) {
+            return response.badRequest('No files uploaded');
+        }
+        for (let file of files) {
+            if (auth.user && file) {
+                await s3Service.uploadFile(auth.user?.id, file, file.clientName)
+            }
+        }
+        const fileStructures = this.prepareFileStructure(files)
+        await this.insertFileStructure(fileStructures, auth.user!.id)
 
-      return response.created({
-        message: "File uploaded successfully."
-      })
-    } catch (error) {
-      logger.error({ error }, `An error occur when uploading the file ${auth.user?.id}`)
+        return response.created({ message: "File uploaded successfully." })
+
     }
-  }
 
-  async rename({ request, auth, inertia, session }: HttpContext) {
-    const name = request.input('name')
-    const id = request.param('id')
+    async rename({ request, auth, inertia, session }: HttpContext) {
+        const name = request.input('name')
+        const id = request.param('id')
 
-    // TODO: check if the name already exist
-    const file = await DriveFile.find(id)
-    if(file) {
-      await file.merge({ name, updatedBy: auth.user?.id }).save()
+        // TODO: check if the name already exist
+        const file = await DriveFile.find(id)
+        if (file) {
+            await file.merge({ name, updatedBy: auth.user?.id }).save()
+        }
+        session.flash('message', 'File renamed.')
+
+        return inertia.location('/drive')
     }
-    session.flash('message','File renamed.')
 
-    return inertia.location('/drive')
-  }
+    async trash({ request, inertia, session }: HttpContext) {
+        const id = request.param('id')
 
-  async trash({ request, inertia, session }: HttpContext) {
-    const id = request.param('id')
-
-    await DriveFile.query().where('id', id).update({ deletedAt: new Date() })
+        await DriveFile.query().where('id', id).update({ deletedAt: new Date() })
 
 
-    session.flash('message', 'File deleted.')
+        session.flash('message', 'File deleted.')
 
-    return inertia.location('/drive')
-  }
+        return inertia.location('/drive')
+    }
 
-  private async createTree(file: MultipartFile, userId: string) {
-    const parts = file.clientName.split('/');
-    let parentId = null;
+   private prepareFileStructure(files: any[]): Array<{ name: string; mime: string; size: number; extname: string; path: string; isFolder: boolean }> {
+    const fileStructure: Map<string, { name: string; mime: string; size: number; extname: string; path: string; isFolder: boolean }> = new Map();
 
-    for (let i = 0; i < parts.length; i++) {
-      const isLastPart = i === parts.length - 1;
-      const isFolder = !isLastPart;
-      const name = parts[i];
+    files.forEach(file => {
+        const parts = file.clientName.split('/');
+        let currentPath = '';
 
-      const existingRecord = await DriveFile.query().where('name', name).orWhere('parentId', parentId ?? '').first();
+        parts.forEach((part, index) => {
+            const isFolder = index < parts.length - 1;
+            currentPath = currentPath ? `${currentPath}/${part}` : part;
 
-      if (existingRecord) {
-        parentId = existingRecord.id;
-      } else {
-        const newRecord: DriveFile = await DriveFile.create({
-          name: name,
-          mime: isFolder ? 'folder' : file.type,
-          size: isFolder ? 0 : file.size,
-          extname: isFolder ? null : file.extname,
-          path: parts.slice(0, i + 1).join('/'),
-          isFolder: isFolder,
-          createdBy: userId,
-          parentId: parentId,
+            if (!fileStructure.has(currentPath)) {
+                fileStructure.set(currentPath, {
+                    name: part,
+                    mime: isFolder ? 'folder' : file.type,
+                    size: isFolder ? 0 : file.size,
+                    extname: isFolder ? null : file.extname,
+                    path: currentPath,
+                    isFolder,
+                });
+            }
         });
+    });
 
-        parentId = newRecord.id;
-      }
-    }
-  }
+    return Array.from(fileStructure.values());
+}
+
+private async insertFileStructure(fileStructure: Array<{ name: string; mime: string; size: number; extname: string; path: string; isFolder: boolean }>, userId: string) {
+    const parentIds: Map<string, string | null> = new Map();
+    const foldersToInsert: Array<DriveFile> = [];
+    const filesToInsert: Array<DriveFile> = [];
+
+    // Separate folders and files for bulk insertion
+    fileStructure.forEach(file => {
+        const { name, mime, size, extname, path, isFolder } = file;
+        const parentPath = path.substring(0, path.lastIndexOf('/'));
+        const parentId = parentPath ? parentIds.get(parentPath) : null;
+
+        const record: DriveFile = {
+            name,
+            mime,
+            size,
+            extname,
+            path,
+            isFolder,
+            createdBy: userId,
+            parentId: parentId == undefined ? null : parentId,
+        };
+
+        if (isFolder) {
+            foldersToInsert.push(record);
+        } else {
+            filesToInsert.push(record);
+        }
+    });
+
+    // Insert folders and update parentIds
+    const insertedFolders = await DriveFile.createMany(foldersToInsert);
+    insertedFolders.forEach(record => parentIds.set(record.path!, record.id));
+
+    // Update parent IDs for files and insert them
+    filesToInsert.forEach(file => {
+        const parentPath = file.path!.substring(0, file.path!.lastIndexOf('/'));
+        file.parentId = parentPath ? parentIds.get(parentPath) ?? null : null;
+    });
+
+    await DriveFile.createMany(filesToInsert);
+}
 
 }

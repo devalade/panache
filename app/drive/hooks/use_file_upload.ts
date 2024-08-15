@@ -5,11 +5,17 @@ export function useFileUpload(endpoint: string ) {
 	const [response, setResponse] = useState<AxiosResponse<any> | undefined>();
 	const [errors, setErrors] = useState<AxiosError<any, any> | undefined>();
 	const [status, setStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
-	const [uploadProgress, setUploadProgress] = useState<Record<number, number>>({});
+	const [uploadProgress, setUploadProgress] = useState<Record<number|string, number>>({});
 
-	const uploadFile = async (file: File, key: number = 0 ) => {
+	const uploadFile = async (file: File|File[], key: string | number = 0) => {
 		const formData = new FormData();
-		formData.append("file", file);
+        if(Array.isArray(file)) {
+            for (let i = 0; i < file.length; i++) {
+                formData.append('file', file[i]);
+              }
+        } else {
+            formData.append("file", file);
+        }
 
 		try {
 			setStatus("pending");
@@ -34,4 +40,3 @@ export function useFileUpload(endpoint: string ) {
 
 	return { uploadFile, uploadProgress, response, status, errors };
 }
-
