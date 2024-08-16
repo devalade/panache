@@ -10,7 +10,12 @@ export default class DriveController {
         .orderBy('createdAt', 'asc')
         .paginate(page, limit)
 
-        return inertia.render('drive/index', { files: files.toJSON() })
+        const folders = await DriveFile.notInTrash(auth.user.id)
+        .where('isFolder', true)
+        .orderBy('createdAt', 'asc')
+        .paginate(1, 20)
+
+        return inertia.render('drive/index', { files: files.toJSON(), folders: folders.toJSON().data })
     }
 
     async search({ response, request, auth }: HttpContext) {
@@ -33,7 +38,11 @@ export default class DriveController {
             .orderBy('createdAt', 'asc')
             .paginate(page, limit)
 
-        return inertia.render('drive/index', { files: files.toJSON() })
+        const folders = await DriveFile.notInTrash(auth.user.id)
+            .where('isFolder', true)
+            .orderBy('createdAt', 'asc')
+            .paginate(1, 20)
+        return inertia.render('drive/index', { files: files.toJSON(), folders: folders.toJSON().data })
     }
 
     async trash({ inertia, auth }: HttpContext) {

@@ -19,6 +19,7 @@ import {
 import qs from 'qs'
 
 interface Props {
+  folders: DriveFile[]
   files: {
     data: DriveFile[]
     meta: {
@@ -36,7 +37,6 @@ interface Props {
 }
 
 const Drive: React.FunctionComponent<Props> = ({ files }) => {
-  console.log('meta', files.meta)
   const [activeView, setActiveView] =
     React.useState<React.ComponentProps<typeof TopBarContent>['activeView']>('row-view')
   const message = useMessage<string>()
@@ -68,7 +68,9 @@ const Drive: React.FunctionComponent<Props> = ({ files }) => {
       }
       leftChildren={<SidebarContent />}
     >
-      <DataTable<DriveFile, any> columns={columns} data={files.data} />
+      {activeView === 'row-view' && (
+        <DataTable<DriveFile, any> columns={columns} data={files.data} />
+      )}
       {files.meta.total > files.meta.perPage && (
         <Pagination className="mb-4">
           <PaginationContent>

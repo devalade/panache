@@ -156,7 +156,6 @@ function generateFileStructutre(files: File[]) {
       file: f,
     }
     if (rootFolder !== '/') {
-      console.log({ rootFolder })
       const currentFolder = folderNames.has(rootFolder) ? folderNames.get(rootFolder) : data
       folderNames.set(rootFolder, {
         ...currentFolder,

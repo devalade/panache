@@ -10,7 +10,7 @@ import { SearchDialog } from '../search_dialog'
 import { UploaderDialog } from '../uploader_dialog'
 
 export function SidebarContent() {
-  const { files } = usePageProps<{ files: { data: DriveFile[] } }>()
+  const { folders } = usePageProps<{ folders: DriveFile[] }>()
   const { value: open, toggle } = useToggle()
   const { value: isOpenUploaderDialog, toggle: onOpenUploaderDialog } = useToggle()
   return (
@@ -46,7 +46,7 @@ export function SidebarContent() {
         <hr className="-mx-2.5 bg-destructive-foreground" />
         <div className="flex-1">
           <ul className="space-y-2 h-[calc(100vh_-_343px)] overflow-y-auto no-scrollbar">
-            {files.data.map((file) => (
+            {folders.map((file) => (
               <FilesystemItem file={file} key={file.id} />
             ))}
           </ul>
