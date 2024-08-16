@@ -3,13 +3,10 @@ import { Button } from '#common/ui/components/button'
 import {
   ChevronDown,
   DownloadIcon,
-  FolderIcon,
   FolderPlusIcon,
-  ImageIcon,
   LayoutGrid,
   LinkIcon,
   ListIcon,
-  PaperclipIcon,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -17,13 +14,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '#common/ui/components/dropdown_menu'
-import { Dialog, DialogContent, DialogTrigger } from '#common/ui/components/dialog'
-import { useFileUpload } from '#drive/hooks/use_file_upload'
-import { ScrollArea } from '#common/ui/components/scroll_area'
-import { formatBytes } from '#common/ui/lib/format_bytes'
+import { UploaderDialog } from '../uploader_dialog'
 import { useToggle } from '#common/ui/hooks/use_toggle'
-import { MimeFileIcon } from '../mime_file_icon'
-import { router } from '@inertiajs/react'
 
 interface Props {
   onListViewSelect: () => void
@@ -31,42 +23,9 @@ interface Props {
   activeView: 'row-view' | 'grid-view'
 }
 
-function generateFileStructutre(files: File[]) {
-  const folderNames = new Map<
-    string,
-    { name: string; mime: string; size: number; isFolder: boolean; file: File | File[] }
-  >()
-
-  files.forEach((f) => {
-    const rootFolder =
-      f.webkitRelativePath.split('/').length > 1 ? f.webkitRelativePath.split('/')[0] : '/'
-    const data: { name: string; mime: string; size: number; isFolder: boolean; file: File } = {
-      name: rootFolder !== '/' ? rootFolder : f.name,
-      mime: rootFolder !== '/' ? 'folder' : String(f.type),
-      size: f.size,
-      isFolder: rootFolder !== '/',
-      file: f,
-    }
-    if (rootFolder !== '/') {
-      console.log({ rootFolder })
-      const currentFolder = folderNames.has(rootFolder) ? folderNames.get(rootFolder) : data
-      folderNames.set(rootFolder, {
-        ...currentFolder,
-        file: Array.isArray(currentFolder?.file)
-          ? currentFolder?.file.concat(data.file)
-          : [data.file],
-        size: currentFolder!.size + data.size,
-      } as any)
-    } else {
-      folderNames.set(f.name, data)
-    }
-  })
-
-  return Array.from(folderNames, ([_, value]) => value)
-}
-
 export function TopBarContent(props: Props) {
   const { activeView, onGridViewSelect, onListViewSelect } = props
+  const { value: isOpen, toggle: onToggle } = useToggle()
 
   return (
     <div className="w-full flex  items-center justify-between">
@@ -112,144 +71,13 @@ export function TopBarContent(props: Props) {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Uploader />
+        <UploaderDialog isOpen={isOpen} onToggle={onToggle}>
+          <Button onClick={() => onToggle()} variant="outline" size="sm">
+            Upload
+          </Button>
+        </UploaderDialog>
         <Button size="sm">Share</Button>
       </div>
     </div>
-  )
-}
-
-export function Uploader() {
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
-  const folderInputRef = React.useRef<HTMLInputElement>(null)
-
-  const [files, setFiles] = React.useState<File[] | null>([])
-  const [fileStructure, setFileStructure] = React.useState<
-    Array<{ name: string; mime: string; size: number; isFolder: boolean }>
-  >([])
-  const [uploadedFiles, setUploadFiles] = React.useState<any[]>([])
-  const [errors, setErrors] = React.useState<any[]>([])
-  const { value: open, toggle } = useToggle()
-  const { uploadFile, uploadProgress } = useFileUpload('/drive/upload')
-
-  const onFilesUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const _files = Array.from(event.target.files!) as File[]
-    setFiles(_files)
-
-    const _fileStructure = generateFileStructutre(_files)
-    setFileStructure((prev) => [...fileStructure, ..._fileStructure])
-
-    const uploadPromises = _fileStructure.map((f, i) => uploadFile(f.file, f.name))
-
-    Promise.all(uploadPromises)
-      .then(() => {
-        router.reload({ only: ['files'] })
-      })
-      .catch(setErrors)
-  }
-
-  // Trigger the file input click when the button is pressed
-  const openFilePicker = () => {
-    fileInputRef.current?.click()
-  }
-
-  const openFolderPicker = () => {
-    folderInputRef.current?.click()
-  }
-
-  const onClose = () => {
-    toggle()
-    setFiles([])
-  }
-
-  return (
-    <Dialog open={open as boolean}>
-      <DialogTrigger asChild>
-        <Button onClick={() => toggle()} variant="outline" size="sm">
-          Upload
-        </Button>
-      </DialogTrigger>
-      <DialogContent
-        onInteractOutside={() => onClose()}
-        hideCloseButton
-        className=" flex flex-col aspect-video sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-5xl"
-      >
-        <div className="w-full flex items-center justify-between">
-          <div className="flex items-center gap-x-2">
-            <span className="p-4 rounded-lg border border-border text-gray-600">
-              <PaperclipIcon className="size-5" />
-            </span>
-            <div className="">
-              <p className="font-semibold">Upload files</p>
-              <p className="text-gray-500">Upload from your local computer</p>
-            </div>
-          </div>
-
-          <label htmlFor="files">
-            <span className="sr-only">Choose profile photo</span>
-            <input
-              ref={fileInputRef}
-              onChange={onFilesUpload}
-              name="files"
-              type="file"
-              className="hidden"
-              multiple
-            />
-            <Button onClick={openFilePicker}>Upload files</Button>
-          </label>
-        </div>
-
-        <div className="w-full flex items-center justify-between">
-          <div className="flex items-center gap-x-2">
-            <span className="p-4 rounded-lg border border-border text-gray-600">
-              <PaperclipIcon className="size-5" />
-            </span>
-            <div className="">
-              <p className="font-semibold">Upload folder</p>
-              <p className="text-gray-500">Upload from your local computer</p>
-            </div>
-          </div>
-
-          <label htmlFor="files">
-            <span className="sr-only">Choose profile photo</span>
-            <input
-              ref={folderInputRef}
-              onChange={onFilesUpload}
-              name="files"
-              type="file"
-              className="hidden"
-              webkitdirectory=""
-              directory=""
-              multiple
-            />
-            <Button onClick={openFolderPicker}>Upload folder</Button>
-          </label>
-        </div>
-
-        {fileStructure && fileStructure.length > 0 ? (
-          <ScrollArea className="h-fit  px-3">
-            <ul className="space-y-2">
-              {fileStructure?.map((file, index) => (
-                <li key={file.name} className="relative flex items-center p-2.5 rounded-md">
-                  <div
-                    style={
-                      {
-                        '--progression': `${uploadProgress[file.name]}%`,
-                      } as any
-                    }
-                    className="absolute inset-0 w-[--progression] bg-green-800/25 rounded-md"
-                  ></div>
-                  <span className="p-2">
-                    {' '}
-                    {file.isFolder ? <FolderIcon /> : <MimeFileIcon mimeType={file.mime} />}
-                  </span>{' '}
-                  {file.name} - {formatBytes(file.size)}
-                </li>
-              ))}
-            </ul>
-          </ScrollArea>
-        ) : null}
-      </DialogContent>
-    </Dialog>
   )
 }
