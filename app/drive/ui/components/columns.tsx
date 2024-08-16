@@ -80,7 +80,7 @@ export const columns: ColumnDef<DriveFile>[] = [
     accessorKey: 'size',
     header: 'Size',
     cell: ({ getValue }) => (
-      <span>{getValue<number>() === 0 ? '' : formatBytes(getValue<number>())}</span>
+      <span>{getValue<number>() === null ? '' : formatBytes(getValue<number>())}</span>
     ),
   },
   {

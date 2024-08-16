@@ -16,7 +16,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '#common/ui/components/pagination'
-import { Link } from '@inertiajs/react'
 import qs from 'qs'
 
 interface Props {
@@ -70,30 +69,32 @@ const Drive: React.FunctionComponent<Props> = ({ files }) => {
       leftChildren={<SidebarContent />}
     >
       <DataTable<DriveFile, any> columns={columns} data={files.data} />
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              href=""
-              data={qs.parse(files.meta.previousPageUrl?.replace('/', '') ?? '')}
-              preserveState
-            />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="">1</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationEllipsis />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationNext
-              href=""
-              data={qs.parse(files.meta.nextPageUrl?.replace('/', '') ?? '')}
-              preserveState
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      {files.meta.total > files.meta.perPage && (
+        <Pagination className="mb-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href=""
+                data={qs.parse(files.meta.previousPageUrl?.replace('/', '') ?? '')}
+                preserveState
+              />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink href="">1</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext
+                href=""
+                data={qs.parse(files.meta.nextPageUrl?.replace('/', '') ?? '')}
+                preserveState
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </DashboardLayout>
   )
 }
