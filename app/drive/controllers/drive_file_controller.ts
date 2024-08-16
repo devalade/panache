@@ -2,8 +2,9 @@ import S3Service from '#drive/services/s3_service'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import DriveFile from '#drive/database/models/drive_files'
-import { DRIVE_FILE, driveFileQueue } from '#drive/queues/drive_file_queue'
 import DriveFileService from '#drive/services/drive_file_service'
+import queue from '@rlanz/bull-queue/services/main';
+import DriveFileConsumer from '#drive/jobs/drive_file_consumer'
 
 
 export default class DriveFileController {
@@ -11,20 +12,17 @@ export default class DriveFileController {
     async upload({ request, response, auth }: HttpContext, s3Service: S3Service, driveFileService: DriveFileService) {
         const files = request.files('file')
 
-        driveFileQueue.add(DRIVE_FILE, {
-            files
-        })
-
         if (!files) {
             return response.badRequest('No files uploaded');
         }
+
         for (let file of files) {
             if (auth.user && file) {
                 await s3Service.uploadFile(auth.user?.id, file, file.clientName)
             }
         }
-        const fileStructures = driveFileService.prepareFileStructure(files)
-        await driveFileService.insertFileStructure(fileStructures, auth.user!.id)
+        const fileStructures = driveFileService.prepareFileStructure(files, auth.user!.id)
+        await driveFileService.insertFileStructure(fileStructures)
 
         return response.created({ message: "File uploaded successfully." })
 
@@ -48,7 +46,6 @@ export default class DriveFileController {
         const id = request.param('id')
 
         await DriveFile.query().where('id', id).update({ deletedAt: new Date() })
-
 
         session.flash('message', 'File deleted.')
 
