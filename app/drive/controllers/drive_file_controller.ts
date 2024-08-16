@@ -3,9 +3,6 @@ import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import DriveFile from '#drive/database/models/drive_files'
 import DriveFileService from '#drive/services/drive_file_service'
-import queue from '@rlanz/bull-queue/services/main';
-import DriveFileConsumer from '#drive/jobs/drive_file_consumer'
-
 
 export default class DriveFileController {
     @inject()
@@ -25,7 +22,6 @@ export default class DriveFileController {
         await driveFileService.insertFileStructure(fileStructures)
 
         return response.created({ message: "File uploaded successfully." })
-
     }
 
     async rename({ request, auth, inertia, session }: HttpContext) {
