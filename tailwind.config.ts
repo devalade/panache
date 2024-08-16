@@ -84,5 +84,18 @@ export default {
       },
     },
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [tailwindcssAnimate, noScrollbar],
 } satisfies Config
+
+
+function noScrollbar({ addUtilities }) {
+    addUtilities({
+      '.no-scrollbar::-webkit-scrollbar': {
+        'display': 'none',
+      },
+      '.no-scrollbar': {
+        '-ms-overflow-style': 'none',  /* IE and Edge */
+        'scrollbar-width': 'none',  /* Firefox */
+      }
+    })
+  }
