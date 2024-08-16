@@ -7,19 +7,28 @@ import { DriveFile } from '#drive/types/drive_file'
 import { Link } from '@inertiajs/react'
 import { useToggle } from '#common/ui/hooks/use_toggle'
 import { SearchDialog } from '../search_dialog'
+import { UploaderDialog } from '../uploader_dialog'
 
 export function SidebarContent() {
-  const { files } = usePageProps<{ files: DriveFile[] }>()
+  const { files } = usePageProps<{ files: { data: DriveFile[] } }>()
   const { value: open, toggle } = useToggle()
+  const { value: isOpenUploaderDialog, toggle: onOpenUploaderDialog } = useToggle()
   return (
     <>
       <SearchDialog isOpen={open} onToggle={toggle} />
       <div className="h-full flex flex-col px-2 text-gray-500">
         <div>
-          <Button size="sm" variant="outline" className="w-full justify-start gap-x-2 text-black">
-            {' '}
-            <UploadIcon className="w-4 h-4" /> Upload
-          </Button>
+          <UploaderDialog isOpen={isOpenUploaderDialog} onToggle={onOpenUploaderDialog}>
+            <Button
+              onClick={() => onOpenUploaderDialog()}
+              size="sm"
+              variant="outline"
+              className="w-full justify-start gap-x-2 text-black"
+            >
+              {' '}
+              <UploadIcon className="w-4 h-4" /> Upload
+            </Button>
+          </UploaderDialog>
           <Button
             onClick={() => toggle()}
             size="sm"
@@ -37,7 +46,7 @@ export function SidebarContent() {
         <hr className="-mx-2.5 bg-destructive-foreground" />
         <div className="flex-1">
           <ul className="space-y-2 h-[calc(100vh_-_343px)] overflow-y-auto no-scrollbar">
-            {files.map((file) => (
+            {files.data.map((file) => (
               <FilesystemItem file={file} key={file.id} />
             ))}
           </ul>

@@ -7,12 +7,37 @@ import { columns } from '#drive/ui/components/columns'
 import { DriveFile } from '#drive/types/drive_file'
 import useMessage from '#common/ui/hooks/use_message'
 import { toast } from 'sonner'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '#common/ui/components/pagination'
+import { Link } from '@inertiajs/react'
+import qs from 'qs'
 
 interface Props {
-  files: DriveFile[]
+  files: {
+    data: DriveFile[]
+    meta: {
+      total: number
+      perPage: number
+      currentPage: number
+      lastPage: number
+      firstPage: number
+      firstPageUrl: string
+      lastPageUrl: string
+      nextPageUrl: string | null
+      previousPageUrl: string | null
+    }
+  }
 }
 
 const Drive: React.FunctionComponent<Props> = ({ files }) => {
+  console.log('meta', files.meta)
   const [activeView, setActiveView] =
     React.useState<React.ComponentProps<typeof TopBarContent>['activeView']>('row-view')
   const message = useMessage<string>()
@@ -44,7 +69,31 @@ const Drive: React.FunctionComponent<Props> = ({ files }) => {
       }
       leftChildren={<SidebarContent />}
     >
-      <DataTable<DriveFile, any> columns={columns} data={files} />
+      <DataTable<DriveFile, any> columns={columns} data={files.data} />
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              href=""
+              data={qs.parse(files.meta.previousPageUrl?.replace('/', '') ?? '')}
+              preserveState
+            />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink href="">1</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext
+              href=""
+              data={qs.parse(files.meta.nextPageUrl?.replace('/', '') ?? '')}
+              preserveState
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </DashboardLayout>
   )
 }

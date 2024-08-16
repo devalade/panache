@@ -59,7 +59,7 @@ export function UploaderDialog({ children, isOpen, onToggle }: React.PropsWithCh
       <DialogContent
         onInteractOutside={() => onClose()}
         hideCloseButton
-        className=" flex flex-col aspect-video sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-5xl"
+        className=" flex flex-col h-3/6 aspect-video sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-5xl"
       >
         <div className="w-full flex items-center justify-between">
           <div className="flex items-center gap-x-2">
@@ -114,7 +114,7 @@ export function UploaderDialog({ children, isOpen, onToggle }: React.PropsWithCh
         </div>
 
         {fileStructure && fileStructure.length > 0 ? (
-          <ul className="h-fit  px-3 space-y-2">
+          <ul className=" px-3 space-y-2 overflow-y-auto no-scrollbar">
             {fileStructure?.map((file, index) => (
               <li key={file.name} className="relative flex items-center p-2.5 rounded-md">
                 <div
