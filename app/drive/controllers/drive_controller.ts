@@ -29,7 +29,7 @@ export default class DriveController {
         const folderId = request.param('id');
         files = await DriveFile.notInTrash(auth.user.id)
                             .where('parentId', folderId)
-                            .limit(10)
+                            .limit(20)
                             .orderBy('createdAt', 'asc')
                             .preload('files')
     }

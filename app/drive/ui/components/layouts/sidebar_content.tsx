@@ -35,8 +35,8 @@ export function SidebarContent() {
           </Button>
         </div>
         <hr className="-mx-2.5 bg-destructive-foreground" />
-        <div className="h-12 flex-1 border border-destructive-foreground">
-          <ul className="space-y-1">
+        <div className="flex-1">
+          <ul className="space-y-2 h-[calc(100vh_-_343px)] overflow-y-auto no-scrollbar">
             {files.map((file) => (
               <FilesystemItem file={file} key={file.id} />
             ))}

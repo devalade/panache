@@ -62,80 +62,79 @@ const DashboardLayout: React.FunctionComponent<DashboardLayoutProps> = ({
 
   return (
     <>
-    <Toaster />
-    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <div className="hidden border-r bg-muted/40 md:block">
-        <div className="flex h-full max-h-screen flex-col gap-2">
-          <SwitchProductMenu moduleName={moduleName} />
-          <div className="flex-1 flex flex-col items-between h-full">
-            <div className='flex-1'>{leftChildren}</div>
-            <SettingsDialog>
-              <DropdownMenu>
-                <DropdownMenuTrigger className="mt-auto flex py-2 px-4 items-center space-x-4 lg:px-6 border-t">
-                  <Avatar>
-                    <AvatarFallback className="border">
-                      {user.firstName[0].toUpperCase()}
-                      {user.lastName[0].toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="font-medium text-sm">
-                    {user.firstName} {user.lastName}
-                  </span>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DialogTrigger asChild>
-                    <DropdownMenuItem className="cursor-pointer">
-                      <Settings2Icon className="h-4 w-4 mr-2" />
-                      Settings
+      <Toaster />
+      <div className="grid h-screen overflow-y-hidden w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+        <div className="hidden border-r bg-muted/40 md:block">
+          <div className="flex h-full max-h-screen flex-col gap-2">
+            <SwitchProductMenu moduleName={moduleName} />
+            <div className="flex-1 flex flex-col items-between h-full">
+              <aside className="flex-1">{leftChildren}</aside>
+              <SettingsDialog>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="mt-auto flex py-2 px-4 items-center space-x-4 lg:px-6 border-t">
+                    <Avatar>
+                      <AvatarFallback className="border">
+                        {user.firstName[0].toUpperCase()}
+                        {user.lastName[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="font-medium text-sm">
+                      {user.firstName} {user.lastName}
+                    </span>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DialogTrigger asChild>
+                      <DropdownMenuItem className="cursor-pointer">
+                        <Settings2Icon className="h-4 w-4 mr-2" />
+                        Settings
+                      </DropdownMenuItem>
+                    </DialogTrigger>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="cursor-pointer" onClick={handleSignOut}>
+                      <LogOutIcon className="h-4 w-4 mr-2" />
+                      Sign Out
                     </DropdownMenuItem>
-                  </DialogTrigger>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer" onClick={handleSignOut}>
-                    <LogOutIcon className="h-4 w-4 mr-2" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SettingsDialog>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </SettingsDialog>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex flex-col">
-        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="shrink-0 md:hidden">
-                <MenuIcon className="h-4 w-4" />
-                <span className="sr-only">Toggle navigation menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col">
-              <div className="flex items-center space-x-2 mb-4">
-                <img src={logo} alt="Panache" className="h-12 w-auto" />
-                <p className="font-bold">
-                  Panache <span className="font-normal">{moduleName}</span>
-                </p>
-              </div>
+        <div className="flex flex-col">
+          <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon" className="shrink-0 md:hidden">
+                  <MenuIcon className="h-4 w-4" />
+                  <span className="sr-only">Toggle navigation menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="flex flex-col">
+                <div className="flex items-center space-x-2 mb-4">
+                  <img src={logo} alt="Panache" className="h-12 w-auto" />
+                  <p className="font-bold">
+                    Panache <span className="font-normal">{moduleName}</span>
+                  </p>
+                </div>
 
-              {leftChildren}
-            </SheetContent>
-          </Sheet>
-          {topChildren}
-        </header>
-        <main
-          className={cn(
-            'overflow-y-auto !max-h-[calc(100vh-60px)] flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6',
-            className
-          )}
-        >
-          {children}
-        </main>
+                {leftChildren}
+              </SheetContent>
+            </Sheet>
+            {topChildren}
+          </header>
+          <main
+            className={cn(
+              'overflow-y-auto !max-h-[calc(100vh-60px)] flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6',
+              className
+            )}
+          >
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
     </>
-
   )
 }
 

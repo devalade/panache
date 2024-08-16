@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { ChevronRightIcon } from 'lucide-react'
 import { DriveFile } from '#drive/types/drive_file'
 import { MimeFileIcon } from '#drive/ui/components/mime_file_icon'
